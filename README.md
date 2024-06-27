@@ -1,6 +1,4 @@
-Here is a template for a README file for your project:
 
----
 
 # Annual Enterprise Survey Database
 
@@ -141,8 +139,5 @@ This project is licensed under the MIT License. See the LICENSE file for details
 
 ## Contact
 
-For any questions or feedback, please contact [yourname](mailto:youremail@example.com).
+For any questions or feedback, please contact [Chidanand A](chidananda1412@gmail.com).
 
----
-
-This template provides a comprehensive overview of the project, including setup instructions, schema details, and example queries. Adjust the paths, contact details, and other specifics to match your project.
