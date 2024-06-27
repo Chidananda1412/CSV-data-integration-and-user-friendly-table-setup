@@ -1,52 +1,148 @@
+Here is a template for a README file for your project:
+
+---
+
 # Annual Enterprise Survey Database
 
-This repository contains a project for managing and analyzing annual enterprise survey data using a MySQL database. The project includes scripts for creating a database, importing data from CSV files, and performing various queries to analyze the financial data.
+## Project Description
 
-## Table of Contents
-
-- [Getting Started](#getting-started)
-- [Database Schema](#database-schema)
-- [Usage](#usage)
-- [Queries](#queries)
-- [Contributing](#contributing)
-- [License](#license)
-
-## Getting Started
-
-To get started with this project, follow these steps:
-
-1. Clone this repository to your local machine.
-2. Ensure you have MySQL installed on your system.
-3. Run the SQL scripts provided in the `sql` directory to create the database schema and import data from CSV files.
-4. Use MySQL client or any preferred tool to interact with the database and execute queries.
+The Annual Enterprise Survey Database project aims to create and manage a database for storing financial data from the Annual Enterprise Survey. The database includes tables for financial data and industry information, and supports various queries to extract meaningful insights from the data.
 
 ## Database Schema
 
-The database schema consists of a single table named `FinancialData`. Here are the attributes of the table:
+### Tables
 
-- `id`: Primary key, auto-incremented unique identifier for each record.
-- `year`: Year of the financial data.
-- `industry_code_ANZSIC`: Industry code according to ANZSIC classification.
-- `industry_name_ANZSIC`: Name of the industry according to ANZSIC classification.
-- `rme_size_grp`: Size group of the reporting unit.
-- `variable`: Type of financial variable.
-- `value`: Value of the financial variable.
-- `unit`: Unit of measurement for the value.
+1. **FinancialData**
 
-## Usage
+    | Column             | Data Type    | Description                           |
+    |--------------------|--------------|---------------------------------------|
+    | id                 | INT          | Primary key, auto-incremented         |
+    | year               | INT          | Year of the data                      |
+    | industry_code_ANZSIC | INT        | Industry code according to ANZSIC     |
+    | rme_size_grp       | VARCHAR(50)  | Size group of the enterprise          |
+    | variable           | VARCHAR(50)  | Financial variable                    |
+    | value              | DECIMAL(18, 2) | Value of the financial variable       |
+    | unit               | VARCHAR(50)  | Unit of the value                     |
 
-To use this project, follow the steps mentioned in the "Getting Started" section. Once you have set up the database and imported data, you can start querying the database to analyze the financial data.
+2. **Industries**
 
-## Queries
+    | Column             | Data Type    | Description                           |
+    |--------------------|--------------|---------------------------------------|
+    | industry_code_ANZSIC | INT        | Primary key, industry code according to ANZSIC |
+    | industry_name      | VARCHAR(255) | Name of the industry                  |
 
-The project includes a variety of user-friendly queries to interact with the database and perform data analysis. These queries include:
+## SQL Script
 
-- Basic retrieval queries to fetch data from the `FinancialData` table.
-- Aggregation queries to calculate total, average, minimum, and maximum values for financial variables.
-- Filtering queries to retrieve data based on specific criteria such as industry, year, size group, etc.
-- Modification queries to update or delete existing records.
-- Database management queries to alter table structure, add indexes, etc.
+### Database and Table Creation
 
-You can refer to the `queries.sql` file for a comprehensive list of queries provided with this project.
+```sql
+-- Create database and use it
+CREATE DATABASE IF NOT EXISTS AnnualEnterpriseSurvey;
+USE AnnualEnterpriseSurvey;
 
+-- Create FinancialData table
+CREATE TABLE IF NOT EXISTS FinancialData (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    year INT,
+    industry_code_ANZSIC INT,
+    industry_name_ANZSIC VARCHAR(255),
+    rme_size_grp VARCHAR(50),
+    variable VARCHAR(50),
+    value DECIMAL(18, 2),
+    unit VARCHAR(50)
+);
 
+-- Create Industries table
+CREATE TABLE IF NOT EXISTS Industries (
+    industry_code_ANZSIC INT PRIMARY KEY,
+    industry_name VARCHAR(255)
+);
+```
+
+### Data Loading
+
+```sql
+-- Load data into FinancialData table
+-- Ensure file path is correct and server has required permissions
+LOAD DATA INFILE '/path/to/your/file.csv'
+INTO TABLE FinancialData
+FIELDS TERMINATED BY ',' ENCLOSED BY '"'
+LINES TERMINATED BY '\n'
+IGNORE 1 LINES;
+```
+
+### Data Manipulation
+
+```sql
+-- Populate Industries table with distinct industry codes and names
+INSERT INTO Industries (industry_code_ANZSIC, industry_name)
+SELECT DISTINCT industry_code_ANZSIC, industry_name_ANZSIC FROM FinancialData;
+
+-- Ensure no orphan industry_code_ANZSIC values before dropping column and adding FK
+ALTER TABLE FinancialData DROP COLUMN industry_name_ANZSIC;
+
+-- Add foreign key constraint
+ALTER TABLE FinancialData
+ADD FOREIGN KEY (industry_code_ANZSIC) REFERENCES Industries(industry_code_ANZSIC);
+```
+
+### Queries
+
+```sql
+-- Display first 10 rows to verify data load
+SELECT * FROM FinancialData LIMIT 10;
+
+-- Display distinct industry names from FinancialData
+SELECT DISTINCT industry_name_ANZSIC FROM FinancialData;
+
+-- Example queries
+SELECT * FROM FinancialData WHERE year = 2023;
+
+SELECT variable, SUM(value) AS total_value FROM FinancialData GROUP BY variable;
+```
+
+## Setup and Usage
+
+1. **Clone the Repository**
+
+    ```bash
+    git clone https://github.com/yourusername/AnnualEnterpriseSurvey.git
+    ```
+
+2. **Navigate to the Project Directory**
+
+    ```bash
+    cd AnnualEnterpriseSurvey
+    ```
+
+3. **Import the SQL Script**
+
+    - Open your MySQL client.
+    - Run the provided SQL script (`annual_enterprise_survey.sql`) to set up the database and tables.
+
+4. **Load the Data**
+
+    - Ensure the CSV file is located at the specified path (`/path/to/your/file.csv`).
+    - Execute the `LOAD DATA INFILE` statement to import the data into the `FinancialData` table.
+
+5. **Run Queries**
+
+    - Use the provided example queries or write your own to explore and analyze the data.
+
+## Notes
+
+- Ensure that the MySQL server has the `LOCAL INFILE` capability enabled.
+- Modify the `VARCHAR` sizes if necessary to accommodate your data.
+- Check for potential errors or exceptions during each step, especially when loading data or modifying table structures.
+
+## License
+
+This project is licensed under the MIT License. See the LICENSE file for details.
+
+## Contact
+
+For any questions or feedback, please contact [yourname](mailto:youremail@example.com).
+
+---
+
+This template provides a comprehensive overview of the project, including setup instructions, schema details, and example queries. Adjust the paths, contact details, and other specifics to match your project.
